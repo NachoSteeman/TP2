@@ -67,4 +67,3 @@ fv (Lam _   u       ) = fv u
 ---
 printTerm :: Term -> Doc
 printTerm t = pp 0 (filter (\v -> not $ elem v (fv t)) vars) t
-
