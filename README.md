@@ -61,4 +61,4 @@ Una vez compilado el proyecto, se puede correr el ejecutable definido en `app/Ma
 stack exec TP2-exe 
 ```
 
-Esto lanzará el evaluador interactivo de lambda cálculo simplemente tipado a implementar en este trabajo. Con el comando `:?` pueden leer sobre el resto de los comandos disponibles.
+Esto lanzará el evaluador interactivo de lambda cálculo simplemente tipado a implementar en este trabajo. Con el comando `:?` pueden leer sobre el resto de los comandos disponibles.# TP2
