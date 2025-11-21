@@ -31,12 +31,21 @@ import Data.Char
     LET     { TLet }
     IN      { TIn }
 
-    
+    -- Para Nat:
+    ZERO    { TZero }
+    SUC     { TSuc }
+    REC     { TRec }
+    NAT     { TNat }
+
+
 
 -- Precedencias:
 %left '=' 
 %right '->'
-%right '\\' '.' LET IN
+%right '\\' '.' LET IN 
+%left REC -- Rec menor precedencia
+%left SUC -- Suc mayor que Rec
+%left APP -- App mayor que Suc y Rec
 
 
 
@@ -49,8 +58,14 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
+        
         -- Para Let:
         | LET VAR '=' Exp IN Exp       { LLet $2 $4 $6 }
+
+        -- Para Nat:
+        | ZERO                         { LZero }
+        | SUC Exp                      { LSuc $2 }
+        | REC Exp Exp Exp              {LRec $2 $3 $4}
 
         | NAbs                         { $1 }
         
@@ -62,15 +77,15 @@ Atom    :: { LamTerm }
         : VAR                          { LVar $1 }  
         | '(' Exp ')'                  { $2 }
 
-Type    : TYPEE                        { EmptyT }
+Type    : NAT                          { NatT}
+        | TYPEE                        { EmptyT }
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
 
 Defs    : Defexp Defs                  { $1 : $2 }
         |                              { [] }
 
--- Para Let:
-Let     :: { LamTerm }
+
         
      
 {
@@ -114,9 +129,15 @@ data Token = TVar String
                | TEquals
                | TEOF
 
-               -- Para Let
+               -- Para Let:
                | TLet
                | TIn
+
+               -- Para Nat:
+               | TZero
+               | TSuc
+               | TRec
+               | TNat
         
 
                deriving Show
@@ -144,9 +165,18 @@ lexer cont s = case s of
                     where lexVar cs = case span isAlpha cs of
                               ("E",rest)    -> cont TTypeE rest
                               ("def",rest)  -> cont TDef rest
-                              -- Para Let
+
+                              -- Para Let:
                               ("let", rest) -> cont TLet rest
                               ("in", rest)  -> cont TIn  rest
+
+                              -- Para Nat:
+                              ("zero", rest) -> cont TZero rest
+                              ("suc", rest ) -> cont TSuc rest 
+                              ("R", rest )   -> cont TRec rest
+                              ("Nat", rest ) -> cont TNat rest 
+
+                              
 
                               (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
