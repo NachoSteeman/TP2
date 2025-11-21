@@ -30,7 +30,7 @@ conversion (LAbs idx t m)  =  let term' = conversion m
 conversion (LApp m n)       =  (conversion m) :@: (conversion n)
 
 -- Seccion 8:
-conversion (LLet string m n) = Let (conversion m) (conversion n)
+conversion (LLet idx m n) = Let (conversion m) (b2b (Global idx) 0 (conversion n))
 
 -- Naturales:
 conversion (LZero)      = Zero
@@ -40,6 +40,7 @@ conversion (LRec n m p) = Rec (conversion n) (conversion m) (conversion p)
 -- Listas:
 conversion (LNil)       = Nil 
 conversion (LCons n m)  = Cons (conversion n) (conversion m)
+conversion (LRecL n m p) = RecL (conversion n) (conversion m) (conversion p)
 
 
 
@@ -51,7 +52,7 @@ conversion (LCons n m)  = Cons (conversion n) (conversion m)
 
 
 
--- b2b: Convierte de Brujin a Bound ?????????? VER
+-- b2b: Convierte de Bound a Brujin
 b2b :: Name -> Int -> Term -> Term
 b2b idx i (Bound n)       = (Bound n)
 b2b idx i (Free name)     = if (idx == name) then (Bound i) else (Free name)
@@ -63,8 +64,11 @@ b2b idx i (Let t1 t2)     = Let (b2b idx i t1) (b2b idx (i+1) t2)
 b2b idx i Zero            = Zero
 b2b idx i (Suc n)         = Suc (b2b idx i n)
 b2b idx i (Rec n m p)     = Rec (b2b idx i n) (b2b idx i m) (b2b idx i p)
+
 b2b idx i Nil             = Nil
 b2b idx i (Cons n m)      = Cons (b2b idx i n) (b2b idx i m)
+b2b idx i (RecL n m p) = RecL (b2b idx i n) (b2b idx i m) (b2b idx i p)
+
 
 ----------------------------
 --- evaluador de términos
@@ -79,6 +83,23 @@ sub _ _ (Free n   )           = Free n
 sub i t (u   :@: v)           = sub i t u :@: sub i t v
 sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
 
+-- Let:
+sub i t (Let t1 t2) = Let (sub i t t1) (sub (i + 1) t t2)
+
+-- Nat:
+sub _ _ Zero            = Zero
+sub i t (Suc term)      = Suc (sub i t term)
+sub i t (Rec t1 t2 t3) = Rec (sub i t t1) (sub i t t2) (sub i t t3) 
+
+-- List:
+sub _ _ Nil                   = Nil
+sub i t (Cons t1 t2)          = Cons (sub i t t1) (sub i t t2)
+sub i t (RecL t1 t2 t3)       = RecL (sub i t t1) (sub i t t2) (sub i t t3)
+
+
+
+
+
 -- convierte un valor en el término equivalente
 quote :: Value -> Term
 quote (VLam t f) = Lam t f
@@ -86,8 +107,8 @@ quote (VLam t f) = Lam t f
 quote (VNum NZero) = Zero
 quote (VNum (NSuc n)) = Suc (quote (VNum n))
 
-quote VNil = Nil
-quote (VCons n xs) = Cons (quote (VNum n)) (quote (VList xs))
+quote (VList VNil) = Nil
+quote (VList (VCons n xs)) = Cons (quote (VNum n)) (quote (VList xs))
 
 
 
@@ -105,13 +126,15 @@ eval e (Bound i) = error ("Variable ligada fuera de alcance: " ++ show i)
 eval e (Free name )    = case lookup name e of
                             Just (v, _) -> v
                             Nothing     -> error ("Variable no definida: " ++ show name)
+
 eval e (Lam t term)    = VLam t term                                        
+
 eval e (t :@: u)     = let  (VLam _ body) = eval e t 
                        in   eval e (sub 0 (quote (eval e u)) body)
 
 -- Seccion 8:
 eval e (Let t1 t2) = let v = eval e t1
-                     in (sub 0 (quote v) t2) 
+                     in eval e (sub 0 (quote v) t2) 
 
 -- Seccion Nat
 eval e Zero      = VNum NZero
@@ -119,14 +142,29 @@ eval e (Suc t)   = case eval e t of
                      VNum n -> VNum (NSuc n)
                      _      -> error "Suc aplicado a no-numero"
 
+
+eval e (Rec t1 t2 t3)      = case  eval e t3 of 
+                                VNum NZero     -> eval e t1
+                                VNum (NSuc n)  -> let resRec = eval e (Rec t1 t2 t)
+                                                  in eval e ((t2 :@: quote(resRec)) :@: t)
+                                                      where t = quote (VNum n)
+
+
+
 -- Seccion List:
 eval e Nil         = VList VNil
-eval e (Cons t u)  = VList (VCons (eval e t) (eval e u))
+eval e (Cons t u)  = case (eval e t) of 
+                          VNum x -> case (eval e u) of 
+                                        VList xs -> VList (VCons x xs) 
+                                        _        -> error("Esperaba una lista como segundo argumento")
+                          _      -> error("Esperaba un numero como segundo argumento")
 
-
-
-
-
+eval e (RecL t1 t2 t3) = case (eval e t3) of
+                            VList VNil         -> eval e t1
+                            VList (VCons n lv) -> let t = quote(VList lv)
+                                                      resRec = eval e (RecL t1 t2 t)
+                                                  in eval e (((t2 :@: quote(VNum n)) :@:  t) :@: quote(resRec))
+                            _ -> error "RecL esperaba una lista"
 
 
 
@@ -196,17 +234,17 @@ infer' c e (Suc t) = infer' c e t >>= \tType ->
 infer' c e (Rec t1 t2 t3) = do t1Type <- infer' c e t1
                                t2Type <- infer' c e t2
                                t3Type <- infer' c e t3
-                            case t3Type of
-                              NatT ->  case t2Type of
-                                          FunT t1Type' (FunT NatT t1Type'') -> if t1Type' == t1Type 
-                                                                                    then  if t1Type == t1Type''
-                                                                                             then ret t1Type
-                                                                                             else matchError t1Type t1Type''
-                                                                                  else matchError t1Type t1Type'
-                                          _ -> notfunError t2Type
-                              
-                            
-                              _    -> matchError NatT t3Type 
+                               case t3Type of
+                                 NatT ->  case t2Type of
+                                             FunT t1Type' (FunT NatT t1Type'') -> if t1Type' == t1Type 
+                                                                                       then  if t1Type == t1Type''
+                                                                                                then ret t1Type
+                                                                                                else matchError t1Type t1Type''
+                                                                                     else matchError t1Type t1Type'
+                                             _ -> notfunError t2Type
+                                 
+                               
+                                 _    -> matchError NatT t3Type 
                                
 
 -- Reglas de tipado para Listas:
