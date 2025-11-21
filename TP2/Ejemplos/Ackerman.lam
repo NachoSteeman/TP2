@@ -1,0 +1,14 @@
+def Ack =
+  \m:Nat. \n:Nat.
+    let f =
+      rec
+        (\n:Nat. suc n)                         -- F 0 = \n. suc n
+        (\g:Nat -> Nat. \k:Nat.                -- paso: recibe F k (la función anterior)
+           \x:Nat.
+             rec                                -- define F (k+1) x
+               (g (suc zero))                  -- base: g 1
+               (\r:Nat. \z:Nat. g r)           -- paso: g aplicado al resultado anterior
+               x
+        )
+        m
+    in f n

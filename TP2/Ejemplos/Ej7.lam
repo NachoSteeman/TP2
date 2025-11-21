@@ -1,0 +1,11 @@
+def len = \xs:List Nat.
+  recl zero (\x:Nat. \xs':List Nat. \r:Nat. suc r) xs
+
+def sumPos = \xs:List Nat.
+  recl
+    nil
+    (\x:Nat. \xs':List Nat. \r:List Nat.
+        let pos = suc (len xs') in
+        cons (add x pos) r
+    )
+    xs
