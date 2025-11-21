@@ -23,7 +23,7 @@ module Common where
             | NatT
             | ListT
             deriving (Show, Eq)
-  
+
   -- Términos con nombres
   data LamTerm  =  LVar String
                 |  LAbs String Type LamTerm

@@ -1,3 +1,9 @@
+/home/nachost/.stack/programs/x86_64-linux/ghc-tinfo6-8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
+  hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
+? /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/.stack-work/dist/x86_64-linux-tinfo6/ghc-8.8.3/build/autogen/Paths_TP2.hs
+: hash: 0fbc94a7f2ba4b2166b5e7fe274a7c92e7ff4f437378e507e6c833fa3cd03e52
+? /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/.stack-work/dist/x86_64-linux-tinfo6/ghc-8.8.3/build/autogen/cabal_macros.h
+: hash: 8c7765786187c0d2124bd994f3c9028991a6374e61d46dd2cb18baf91f99d57b
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/ChangeLog.md:
   hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/README.md:
@@ -7,10 +13,12 @@
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/package.yaml:
   hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/src/Common.hs:
-  hash: cb62ffe322a9eb1e842e359c6e9e5ebd4bfa3bcb792d5630f51203862704d57c
+  hash: f3d02b2f5122be2cec9d3925a3f3948635709518238c52eb940b5475ce85b18b
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/src/Parse.y:
   hash: fdc84850c1157735ac40989d1fda0cde1c20240de866c5120d955c2dae4857b8
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/src/PrettyPrinter.hs:
-  hash: 3e3a431296aabc8048a3ed2238ffae7d52417a6d6e456b99056c3c288efafd8c
+  hash: f30fd0697fc163b66bb45de6eca2d2528a402457b0b513145586ce64ae836e49
 /home/nachost/Documents/LCC/Tercer Anio/Segundo Cuatrimestre/ALP/TP2/src/Simplytyped.hs:
-  hash: 5c45f1fedbbc3d9f30322820557a83d04b44643bb4f67e766e82ad34793d67e1
+  hash: aa84c8bcf7bfe778e7566ef02d1330a4a6249f12c6d8823f4046c50312f5b4bd
+/usr/include/stdc-predef.h:
+  hash: cb08cd5d4cc059a90833ac48a284d25016e8d56ded8ad4cd98d8ac59cc5053f3

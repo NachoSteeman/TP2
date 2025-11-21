@@ -245,7 +245,7 @@ infer' c e (Rec t1 t2 t3) = do t1Type <- infer' c e t1
                                  
                                
                                  _    -> matchError NatT t3Type 
-                               
+                                                            
 
 -- Reglas de tipado para Listas:
 infer' c e Nil          = ret ListT
@@ -278,5 +278,5 @@ infer' c e (RecL t1 t2 t3) = do t1Type <- infer' c e t1
 
 -- Modularizar funcion chequeo Recursivo pasandole el tipo que espera para t3.                       
 
-                      
+                     
 

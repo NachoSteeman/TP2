@@ -14,6 +14,7 @@ import Data.Char
 %tokentype { Token }
 %lexer {lexer} {TEOF}
 
+-- Tokens:
 %token
     '='     { TEquals }
     ':'     { TColon }
@@ -25,13 +26,22 @@ import Data.Char
     VAR     { TVar $$ }
     TYPEE   { TTypeE }
     DEF     { TDef }
+
+    -- Para Let:
+    LET     { TLet }
+    IN      { TIn }
+
     
 
+-- Precedencias:
 %left '=' 
 %right '->'
-%right '\\' '.' 
+%right '\\' '.' LET IN
+
+
 
 %%
+-- Reglas Gramaticales:
 
 Def     :  Defexp                      { $1 }
         |  Exp	                       { Eval $1 }
@@ -39,6 +49,9 @@ Defexp  : DEF VAR '=' Exp              { Def $2 $4 }
 
 Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
+        -- Para Let:
+        | LET VAR '=' Exp IN Exp       { LLet $2 $4 $6 }
+
         | NAbs                         { $1 }
         
 NAbs    :: { LamTerm }
@@ -55,6 +68,10 @@ Type    : TYPEE                        { EmptyT }
 
 Defs    : Defexp Defs                  { $1 : $2 }
         |                              { [] }
+
+-- Para Let:
+Let     :: { LamTerm }
+        
      
 {
 
@@ -96,6 +113,12 @@ data Token = TVar String
                | TArrow
                | TEquals
                | TEOF
+
+               -- Para Let
+               | TLet
+               | TIn
+        
+
                deriving Show
 
 ----------------------------------
@@ -121,6 +144,10 @@ lexer cont s = case s of
                     where lexVar cs = case span isAlpha cs of
                               ("E",rest)    -> cont TTypeE rest
                               ("def",rest)  -> cont TDef rest
+                              -- Para Let
+                              ("let", rest) -> cont TLet rest
+                              ("in", rest)  -> cont TIn  rest
+
                               (var,rest)    -> cont (TVar var) rest
                           consumirBK anidado cl cont s = case s of
                               ('-':('-':cs)) -> consumirBK anidado cl cont $ dropWhile ((/=) '\n') cs
