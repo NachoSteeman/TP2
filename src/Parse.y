@@ -37,15 +37,21 @@ import Data.Char
     REC     { TRec }
     NAT     { TNat }
 
+    -- Para Listas:
+    NIL     { TNil }
+    CONS     { TCons }
+    RECL     { TRecL }
+
 
 
 -- Precedencias:
-%left '=' 
-%right '->'
-%right '\\' '.' LET IN 
-%left REC -- Rec menor precedencia
-%left SUC -- Suc mayor que Rec
-%left APP -- App mayor que Suc y Rec
+-- Precedencias (de mayor a menor)
+%left APP            -- aplicación (más fuerte) VER OJO!! No existe el token APP CORREGIR
+%left SUC       -- suc
+%left CONS      -- cons
+%left RECL      -- RL
+%left REC       -- rec
+%right '\\' '.' LET IN     -- lambda y let (menor precedencia)
 
 
 
@@ -67,8 +73,14 @@ Exp     :: { LamTerm }
         | SUC Exp                      { LSuc $2 }
         | REC Exp Exp Exp              {LRec $2 $3 $4}
 
+        -- Para Listas:
+        | NIL                          { LNil }
+        | CONS Exp Exp                 { LCons $2 $3 }
+        | RECL Exp Exp Exp             { LRecL $2 $3 $4}
+
         | NAbs                         { $1 }
         
+        -- Aca tenemos un problema. Si pongo cons zero no tipa pq zero es una exp no una Var ... CORREGIR
 NAbs    :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
         | Atom                         { $1 }
@@ -138,6 +150,11 @@ data Token = TVar String
                | TSuc
                | TRec
                | TNat
+
+               -- Para Listas:
+               | TNil 
+               | TCons 
+               | TRecL
         
 
                deriving Show
@@ -173,8 +190,13 @@ lexer cont s = case s of
                               -- Para Nat:
                               ("zero", rest) -> cont TZero rest
                               ("suc", rest ) -> cont TSuc rest 
-                              ("R", rest )   -> cont TRec rest
+                              ("rec", rest )   -> cont TRec rest
                               ("Nat", rest ) -> cont TNat rest 
+
+                              -- Para listas:
+                              ("nil", rest)  -> cont TNil rest
+                              ("cons", rest)  -> cont TCons rest
+                              ("recl", rest)  -> cont TRecL rest
 
                               
 

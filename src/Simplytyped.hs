@@ -5,7 +5,7 @@ module Simplytyped
   ,          -- evaluador
     infer
   ,         -- inferidor de tipos
-    quote          -- valores -> terminos
+    valorATermino          -- valores -> terminos
   )
 where
 
@@ -19,9 +19,6 @@ import           Common
 -----------------------
 -- conversion
 -----------------------
-
-
-
 -- conversion a términos localmente sin nombres
 conversion :: LamTerm -> Term
 conversion (LVar x)         =  (Free (Global x))
@@ -41,15 +38,6 @@ conversion (LRec n m p) = Rec (conversion n) (conversion m) (conversion p)
 conversion (LNil)       = Nil 
 conversion (LCons n m)  = Cons (conversion n) (conversion m)
 conversion (LRecL n m p) = RecL (conversion n) (conversion m) (conversion p)
-
-
-
-
-
-
-
-
-
 
 
 -- b2b: Convierte de Bound a Brujin
@@ -75,40 +63,36 @@ b2b idx i (RecL n m p) = RecL (b2b idx i n) (b2b idx i m) (b2b idx i p)
 ----------------------------
 
 
--- substituye una variable por un término en otro término
-sub :: Int -> Term -> Term -> Term
-sub i t (Bound j) | i == j    = t
-sub _ _ (Bound j) | otherwise = Bound j
-sub _ _ (Free n   )           = Free n
-sub i t (u   :@: v)           = sub i t u :@: sub i t v
-sub i t (Lam t'  u)           = Lam t' (sub (i + 1) t u)
+-- variablePorTermino substituye una variable por un término en otro término
+variablePorTermino :: Int -> Term -> Term -> Term
+variablePorTermino i t (Bound j) | i == j    = t
+variablePorTermino _ _ (Bound j) | otherwise = Bound j
+variablePorTermino _ _ (Free n   )           = Free n
+variablePorTermino i t (u   :@: v)           = variablePorTermino i t u :@: variablePorTermino i t v
+variablePorTermino i t (Lam t'  u)           = Lam t' (variablePorTermino (i + 1) t u)
 
 -- Let:
-sub i t (Let t1 t2) = Let (sub i t t1) (sub (i + 1) t t2)
+variablePorTermino i t (Let t1 t2) = Let (variablePorTermino i t t1) (variablePorTermino (i + 1) t t2)
 
 -- Nat:
-sub _ _ Zero            = Zero
-sub i t (Suc term)      = Suc (sub i t term)
-sub i t (Rec t1 t2 t3) = Rec (sub i t t1) (sub i t t2) (sub i t t3) 
+variablePorTermino _ _ Zero            = Zero
+variablePorTermino i t (Suc term)      = Suc (variablePorTermino i t term)
+variablePorTermino i t (Rec t1 t2 t3) = Rec (variablePorTermino i t t1) (variablePorTermino i t t2) (variablePorTermino i t t3) 
 
 -- List:
-sub _ _ Nil                   = Nil
-sub i t (Cons t1 t2)          = Cons (sub i t t1) (sub i t t2)
-sub i t (RecL t1 t2 t3)       = RecL (sub i t t1) (sub i t t2) (sub i t t3)
-
-
-
-
+variablePorTermino _ _ Nil                   = Nil
+variablePorTermino i t (Cons t1 t2)          = Cons (variablePorTermino i t t1) (variablePorTermino i t t2)
+variablePorTermino i t (RecL t1 t2 t3)       = RecL (variablePorTermino i t t1) (variablePorTermino i t t2) (variablePorTermino i t t3)
 
 -- convierte un valor en el término equivalente
-quote :: Value -> Term
-quote (VLam t f) = Lam t f
+valorATermino :: Value -> Term
+valorATermino (VLam t f) = Lam t f
 
-quote (VNum NZero) = Zero
-quote (VNum (NSuc n)) = Suc (quote (VNum n))
+valorATermino (VNum NZero) = Zero
+valorATermino (VNum (NSuc n)) = Suc (valorATermino (VNum n))
 
-quote (VList VNil) = Nil
-quote (VList (VCons n xs)) = Cons (quote (VNum n)) (quote (VList xs))
+valorATermino (VList VNil) = Nil
+valorATermino (VList (VCons n xs)) = Cons (valorATermino (VNum n)) (valorATermino (VList xs))
 
 
 
@@ -130,11 +114,11 @@ eval e (Free name )    = case lookup name e of
 eval e (Lam t term)    = VLam t term                                        
 
 eval e (t :@: u)     = let  (VLam _ body) = eval e t 
-                       in   eval e (sub 0 (quote (eval e u)) body)
+                       in   eval e (variablePorTermino 0 (valorATermino (eval e u)) body)
 
 -- Seccion 8:
 eval e (Let t1 t2) = let v = eval e t1
-                     in eval e (sub 0 (quote v) t2) 
+                     in eval e (variablePorTermino 0 (valorATermino v) t2) 
 
 -- Seccion Nat
 eval e Zero      = VNum NZero
@@ -146,8 +130,8 @@ eval e (Suc t)   = case eval e t of
 eval e (Rec t1 t2 t3)      = case  eval e t3 of 
                                 VNum NZero     -> eval e t1
                                 VNum (NSuc n)  -> let resRec = eval e (Rec t1 t2 t)
-                                                  in eval e ((t2 :@: quote(resRec)) :@: t)
-                                                      where t = quote (VNum n)
+                                                  in eval e ((t2 :@: valorATermino(resRec)) :@: t)
+                                                      where t = valorATermino (VNum n)
 
 
 
@@ -161,9 +145,9 @@ eval e (Cons t u)  = case (eval e t) of
 
 eval e (RecL t1 t2 t3) = case (eval e t3) of
                             VList VNil         -> eval e t1
-                            VList (VCons n lv) -> let t = quote(VList lv)
+                            VList (VCons n lv) -> let t = valorATermino(VList lv)
                                                       resRec = eval e (RecL t1 t2 t)
-                                                  in eval e (((t2 :@: quote(VNum n)) :@:  t) :@: quote(resRec))
+                                                  in eval e (((t2 :@: valorATermino(VNum n)) :@:  t) :@: valorATermino(resRec))
                             _ -> error "RecL esperaba una lista"
 
 
