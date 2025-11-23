@@ -113,8 +113,11 @@ eval e (Free name )    = case lookup name e of
 
 eval e (Lam t term)    = VLam t term                                        
 
-eval e (t :@: u)     = let  (VLam _ body) = eval e t 
-                       in   eval e (variablePorTermino 0 (valorATermino (eval e u)) body)
+eval e (t :@: u)     = case eval e t of 
+                           VLam _ body -> 
+                              let arg = valorATermino (eval e u)
+                              in   eval e (variablePorTermino 0 arg body)
+                           _ -> error "Intento de aplicación de un valor no función"
 
 -- Seccion 8:
 eval e (Let t1 t2) = let v = eval e t1
@@ -129,9 +132,11 @@ eval e (Suc t)   = case eval e t of
 
 eval e (Rec t1 t2 t3)      = case  eval e t3 of 
                                 VNum NZero     -> eval e t1
-                                VNum (NSuc n)  -> let resRec = eval e (Rec t1 t2 t)
-                                                  in eval e ((t2 :@: valorATermino(resRec)) :@: t)
+                                VNum (NSuc n)  -> let t = valorATermino (VNum n)
+                                                      resRec = eval e (Rec t1 t2 t)
+                                                  in eval e ((t2 :@: t) :@: valorATermino(resRec))
                                                       where t = valorATermino (VNum n)
+                                _              -> error "Rec esperaba un numero"
 
 
 
@@ -263,4 +268,3 @@ infer' c e (RecL t1 t2 t3) = do t1Type <- infer' c e t1
 -- Modularizar funcion chequeo Recursivo pasandole el tipo que espera para t3.                       
 
                      
-

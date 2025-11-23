@@ -240,7 +240,7 @@ handleStmt state stmt = lift $ do
     let v = eval (ve state) t
     _ <- when (inter state) $ do
       let outtext =
-            if i == it then render (printTerm (quote v)) else render (text i)
+            if i == it then render (printTerm (valorATermino v)) else render (text i)
       putStrLn outtext
     return (state { ve = (Global i, (v, ty)) : ve state })
 

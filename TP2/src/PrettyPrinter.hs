@@ -41,33 +41,33 @@ pp ii vs (Lam t c) =
 
 -- Let:
 pp ii vs (Let t1 t2)      =  
-  text "let" 
+  text "let " 
     <> text (vs !! ii) 
     <> text " = "
     <> pp ii vs t1
-    <> text "in"
+    <> text " in "
     <> pp (ii + 1) vs t2 
 
 -- Nat:
 pp ii vs Zero             = text $ show (sucToNat Zero)
 pp ii vs n@(Suc t1)       = text $ show (sucToNat n)
 pp ii vs (Rec t1 t2 t3)   = 
-  text "Rec"
-  <> pp ii vs t1
-  <> pp ii vs t2
+  text "Rec "
+  <> pp ii vs t1 <> text " "
+  <> pp ii vs t2 <> text " "
   <> pp ii vs t3
 
 -- List:
 pp ii vs Nil              = text "Nil"
 pp ii vs (Cons t1 t2)     = 
-  text "Cons"
-  <> pp ii vs t1
+  text "Cons "
+  <> pp ii vs t1 <> text " "
   <> pp ii vs t2
 
 pp ii vs (RecL t1 t2 t3)  = 
-  text "RL"
-  <> pp ii vs t1
-  <> pp ii vs t2
+  text "RL "
+  <> pp ii vs t1 <> text " "
+  <> pp ii vs t2 <> text " "
   <> pp ii vs t3 
 
 
@@ -76,6 +76,7 @@ pp ii vs (RecL t1 t2 t3)  =
 sucToNat :: Term -> Int
 sucToNat Zero    = 0
 sucToNat (Suc n) = 1 + sucToNat n
+sucToNat _       = error "No es un numero natural"
 
 isLam :: Term -> Bool
 isLam (Lam _ _) = True

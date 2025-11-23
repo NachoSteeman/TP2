@@ -1,0 +1,24 @@
+/home/guille/.ghcup/ghc/8.8.3/lib/ghc-8.8.3/include/ghcversion.h:
+  hash: 40d1b759f485f1cd5a54141a6412691ac2b76930507289a16a6a7b89b045b4d2
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/Paths_TP2.hs:
+  hash: d021a45e0c9b2be68009db96608af3e0402e7449c77ab2cf79b838c7526cabce
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/.stack-work/dist/x86_64-linux/ghc-8.8.3/build/autogen/cabal_macros.h:
+  hash: 29c1000bd380bc5949930d3f0d4af8a942447ab88c6590b84178dc1de7a1b4aa
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/ChangeLog.md:
+  hash: b6db31e04d81c0e662bab2cbee2044b15c6a17422f0ed7b23ee85da5086cf956
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/README.md:
+  hash: 8074f8c769c90de5f72913dd3ea11ca247cd0397f52c06e66baba6731653012e
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/TP2.cabal:
+  hash: 756c792633e84e955c6f5616174cc3df57148746e465c90280baec67951f8b8d
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/package.yaml:
+  hash: 3f5d9d8a2a57469ed5359f4daf48ab7a74a6eb0299ce2def67ad968547b7ac61
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/src/Common.hs:
+  hash: 562a7c10d09137a1d91ca17cd68a10fcfd800d6bf2528d02c0014a5ec904ab24
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/src/Parse.y:
+  hash: 651677d028a45094c7b2a2d6bbae7459e9bda31edbbe30be17817922f3fc5666
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/src/PrettyPrinter.hs:
+  hash: 107f92acaf09e742065131a4aad33ece2ea3df89bbf0f78501aec71bec3ce605
+/mnt/c/Users/guile/Desktop/TP2-ALP/TP2/TP2/src/Simplytyped.hs:
+  hash: 3f7b0ed34165c7bcc5e002379f55bc715fb8a149b3a48d7e4191696f894376e8
+/usr/include/stdc-predef.h:
+  hash: 8db4f65e62cade8ae4d9b77960ee6aee093255acc1b637e3fb37d79179733b15

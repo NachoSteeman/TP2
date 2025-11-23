@@ -41,6 +41,8 @@ import Data.Char
     NIL     { TNil }
     CONS     { TCons }
     RECL     { TRecL }
+    TYPELIST { TTypeList }
+
 
 
 
@@ -91,6 +93,7 @@ Atom    :: { LamTerm }
 
 Type    : NAT                          { NatT}
         | TYPEE                        { EmptyT }
+        | TYPELIST                     { ListT }
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
 
@@ -155,6 +158,8 @@ data Token = TVar String
                | TNil 
                | TCons 
                | TRecL
+               | TTypeList
+
         
 
                deriving Show
@@ -197,6 +202,7 @@ lexer cont s = case s of
                               ("nil", rest)  -> cont TNil rest
                               ("cons", rest)  -> cont TCons rest
                               ("recl", rest)  -> cont TRecL rest
+                              ("List", rest) -> cont TTypeList rest
 
                               
 
