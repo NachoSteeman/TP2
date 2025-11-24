@@ -1,12 +1,3 @@
-def len = \xs:List. 
-  recl zero (\x:Nat. \xss:List. \r:Nat. suc r) xs
-
-def add = \m:Nat. \n:Nat.
-  rec n (\x:Nat. \y:Nat. suc y) m
-
-def sumPos = \xs:List.
-  recl nil (\x:Nat. \xss:List Nat. \r:List Nat.
-        let pos = suc (len xss) in
-        cons (add x pos) r
-    )
-    xs
+def map    = \f: Nat -> Nat.\xs : List Nat. recl nil (\n:Nat.\lv:List.\r:List. cons (f n) r) xs
+def mapS   = map (\x:Nat. suc x)
+def sumPos = \xs:List. recl nil (\n:Nat.\lv:List.\r:List Nat. cons (suc n) (mapS r)) xs

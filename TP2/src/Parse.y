@@ -47,13 +47,13 @@ import Data.Char
 
 
 -- Precedencias:
--- Precedencias (de mayor a menor)
-%left APP            -- aplicación (más fuerte) VER OJO!! No existe el token APP CORREGIR
-%left SUC       -- suc
-%left CONS      -- cons
-%left RECL      -- RL
-%left REC       -- rec
-%right '\\' '.' LET IN     -- lambda y let (menor precedencia)
+%left '=' 
+%right '->'
+%right '\\' '.' LET IN 
+%right REC
+%right RECL
+%right CONS
+%right SUC
 
 
 
@@ -63,28 +63,27 @@ import Data.Char
 
 Def     :  Defexp                      { $1 }
         |  Exp                         { Eval $1 }
+
 Defexp  : DEF VAR '=' Exp              { Def $2 $4 } 
 
-Exp
-        :: { LamTerm }
+Exp     :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
         | LET VAR '=' Exp IN Exp       { LLet $2 $4 $6 }
         | SUC Exp                      { LSuc $2 }
+        | CONS Atom Exp                { LCons $2 $3 }
+        | REC Atom Atom Exp            { LRec $2 $3 $4 }  -- CORREGIDO: Movido a Exp
+        | RECL Atom Atom Exp           { LRecL $2 $3 $4 } -- CORREGIDO: Movido a Exp
         | NAbs                         { $1 }
 
-NAbs
-        :: { LamTerm }
+NAbs    :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
         | Atom                         { $1 }
 
-Atom
-        :: { LamTerm }
+Atom    :: { LamTerm }
         : VAR                          { LVar $1 }
         | '(' Exp ')'                  { $2 }
         | ZERO                         { LZero }
         | NIL                          { LNil }
-        | REC  Atom Atom Exp           { LRec  $2 $3 $4 }
-        | RECL Atom Atom Exp           { LRecL $2 $3 $4 }
 
 Type    : NAT                          { NatT }
         | TYPEE                        { EmptyT }
