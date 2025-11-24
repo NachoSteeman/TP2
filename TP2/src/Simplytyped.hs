@@ -134,7 +134,8 @@ eval e (Rec t1 t2 t3)      = case  eval e t3 of
                                 VNum NZero     -> eval e t1
                                 VNum (NSuc n)  -> let t = valorATermino (VNum n)
                                                       resRec = eval e (Rec t1 t2 t)
-                                                  in eval e ((t2 :@: t) :@: valorATermino(resRec))
+                                                  -- CORRECCIÓN: Primero el resultado recursivo, luego el número
+                                                  in eval e ((t2 :@: valorATermino(resRec)) :@: t)
                                                       where t = valorATermino (VNum n)
                                 _              -> error "Rec esperaba un numero"
 

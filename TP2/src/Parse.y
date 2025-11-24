@@ -59,47 +59,45 @@ import Data.Char
 
 %%
 -- Reglas Gramaticales:
+-- ... (Cabecera y Tokens igual que antes) ...
 
 Def     :  Defexp                      { $1 }
-        |  Exp	                       { Eval $1 }
+        |  Exp                         { Eval $1 }
 Defexp  : DEF VAR '=' Exp              { Def $2 $4 } 
 
-Exp     :: { LamTerm }
+Exp
+        :: { LamTerm }
         : '\\' VAR ':' Type '.' Exp    { LAbs $2 $4 $6 }
-        
-        -- Para Let:
         | LET VAR '=' Exp IN Exp       { LLet $2 $4 $6 }
-
-        -- Para Nat:
-        | ZERO                         { LZero }
         | SUC Exp                      { LSuc $2 }
-        | REC Exp Exp Exp              {LRec $2 $3 $4}
-
-        -- Para Listas:
-        | NIL                          { LNil }
-        | CONS Exp Exp                 { LCons $2 $3 }
-        | RECL Exp Exp Exp             { LRecL $2 $3 $4}
-
         | NAbs                         { $1 }
-        
-        -- Aca tenemos un problema. Si pongo cons zero no tipa pq zero es una exp no una Var ... CORREGIR
-NAbs    :: { LamTerm }
+
+NAbs
+        :: { LamTerm }
         : NAbs Atom                    { LApp $1 $2 }
         | Atom                         { $1 }
 
-Atom    :: { LamTerm }
-        : VAR                          { LVar $1 }  
+Atom
+        :: { LamTerm }
+        : VAR                          { LVar $1 }
         | '(' Exp ')'                  { $2 }
+        | ZERO                         { LZero }
+        | NIL                          { LNil }
+        | REC  Atom Atom Exp           { LRec  $2 $3 $4 }
+        | RECL Atom Atom Exp           { LRecL $2 $3 $4 }
 
-Type    : NAT                          { NatT}
+Type    : NAT                          { NatT }
         | TYPEE                        { EmptyT }
         | TYPELIST                     { ListT }
+        -- CORRECCIÓN 4: Soporte para "List Nat" (Syntax Sugar)
+        | TYPELIST NAT                 { ListT } 
         | Type '->' Type               { FunT $1 $3 }
         | '(' Type ')'                 { $2 }
 
 Defs    : Defexp Defs                  { $1 : $2 }
         |                              { [] }
 
+-- ... (El resto del archivo igual) ...
 
         
      
@@ -192,18 +190,17 @@ lexer cont s = case s of
                               ("let", rest) -> cont TLet rest
                               ("in", rest)  -> cont TIn  rest
 
-                              -- Para Nat:
-                              ("zero", rest) -> cont TZero rest
-                              ("suc", rest ) -> cont TSuc rest 
-                              ("rec", rest )   -> cont TRec rest
-                              ("Nat", rest ) -> cont TNat rest 
-
                               -- Para listas:
                               ("nil", rest)  -> cont TNil rest
                               ("cons", rest)  -> cont TCons rest
                               ("recl", rest)  -> cont TRecL rest
                               ("List", rest) -> cont TTypeList rest
 
+                              -- Para Nat:
+                              ("zero", rest) -> cont TZero rest
+                              ("suc", rest ) -> cont TSuc rest 
+                              ("rec", rest )   -> cont TRec rest
+                              ("Nat", rest ) -> cont TNat rest 
                               
 
                               (var,rest)    -> cont (TVar var) rest

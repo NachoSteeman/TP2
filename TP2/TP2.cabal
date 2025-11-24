@@ -6,7 +6,6 @@ cabal-version: 1.12
 
 name:           TP2
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/githubuser/TP3#readme>
 homepage:       https://github.com/githubuser/TP2#readme
 bug-reports:    https://github.com/githubuser/TP2/issues
 author:         Author name here
