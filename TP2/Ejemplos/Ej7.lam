@@ -2,7 +2,7 @@ def len = \xs:List.
   recl zero (\x:Nat. \xss:List. \r:Nat. suc r) xs
 
 def add = \m:Nat. \n:Nat.
-  rec n m (\k:Nat. suc k)
+  rec n (\x:Nat. \y:Nat. suc y) m
 
 def sumPos = \xs:List.
   recl nil (\x:Nat. \xss:List Nat. \r:List Nat.
